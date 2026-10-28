@@ -52,17 +52,43 @@ window.PLAN = {
             { id: "u44-hi-comp", kind: "medbring", what: "Computer" },
           ] },
         { name: "Kristendomskundskab", info: ["Læser “Kort om etik” og “Hvad er etik og moral?” og besvarer spørgsmål"], tasks: [] },
+        { name: "Projektopgaven", info: ["Projektugen er i uge 45"],
+          tasks: [
+            { id: "u44-pr-gruppe", kind: "lektie", what: "Skriv til klasselæreren: gruppe, tema og forslag til delemne", due: "Inden mandag 26/10", why: "Grupper på 1–3 elever fra eget miniteam." },
+          ] },
       ]
     },
     {
       id: "u45", name: "Uge 45", dates: "2.–6. nov", start: "2026-11-02",
-      note: "Projektuge. Ingen almindelig undervisning i engelsk, fransk og fysik/kemi.",
+      note: "Projektuge. Tjek ind hos vejlederen kl. 08:45 og ud kl. 13:30 hver dag. Arbejde hjemme eller ude i byen skal aftales med vejlederen og skrives på tavlen. Der gives ingen karakter, men en skriftlig udtalelse, som også sendes til forældrene senest 20. november.",
       subjects: [
-        { name: "Projektopgaven", info: [],
+        { name: "Mandag 2/11: Problemstilling", info: ["Tema: Kriser, Udvikling og betydning eller Modsætninger"],
           tasks: [
-            { id: "u45-pr-plan", kind: "lektie", what: "Lav en plan for ugen sammen med gruppen", why: "Hvem gør hvad, og hvornår skal det være færdigt?" },
-            { id: "u45-pr-arb", kind: "lektie", what: "Arbejd på projektopgaven hver dag" },
-            { id: "u45-pr-aflev", kind: "lektie", what: "Tjek kravene og afleveringen for projektopgaven" },
+            { id: "u45-pr-problem", kind: "lektie", what: "Skriv gruppens problemstilling" },
+            { id: "u45-pr-kontrakt", kind: "lektie", what: "Lav gruppekontrakten og få den godkendt af vejlederen", due: "Mandag" },
+          ] },
+        { name: "Tirsdag–torsdag: Research og produkt", info: ["Research, kreativt produkt og forberedelse af præsentationen"],
+          tasks: [
+            { id: "u45-pr-vejl1", kind: "lektie", what: "Hold 1. vejledning med vejlederen" },
+            { id: "u45-pr-vejl2", kind: "lektie", what: "Hold 2. vejledning med vejlederen", why: "Begge vejledninger skal holdes tirsdag, onsdag eller torsdag." },
+            { id: "u45-pr-produkt", kind: "lektie", what: "Lav det kreative produkt" },
+          ] },
+        { name: "Synopsis", info: [],
+          tasks: [
+            { id: "u45-sy-problem", kind: "lektie", what: "Problemstilling" },
+            { id: "u45-sy-dispo", kind: "lektie", what: "Disposition" },
+            { id: "u45-sy-produkt", kind: "lektie", what: "Beskrivelse af produktet og hvordan det bruges i fremlæggelsen" },
+            { id: "u45-sy-kilder", kind: "lektie", what: "Kildeliste" },
+          ] },
+        { name: "Torsdag 5/11: Aflevering", info: [],
+          tasks: [
+            { id: "u45-pr-aflever", kind: "lektie", what: "Aflever produkt og synopsis", due: "Torsdag inden dagen slutter" },
+            { id: "u45-pr-oev", kind: "forbered", what: "Øv fremlæggelsen og tag tid", why: "1 elev: 10 min · 2 elever: 15 min · 3 elever: 20 min, plus spørgsmål." },
+          ] },
+        { name: "Fredag 6/11: Fremlæggelse", info: ["I fremlægger for jeres egen vejleder og en anden vejleder fra miniteamet"],
+          tasks: [
+            { id: "u45-pr-tid", kind: "forbered", what: "Find ud af hvornår I fremlægger, og hvornår du er tilskuer", why: "Planen for fremlæggelserne kommer i løbet af ugen." },
+            { id: "u45-pr-frem", kind: "lektie", what: "Fremlæg projektet" },
           ] },
         { name: "Matematik", info: [],
           tasks: [
@@ -95,7 +121,9 @@ window.PLAN = {
     { date: "Tor 29/10", text: "Dansk: “Mørkevandring” og spørgsmål", ids: ["u44-da-moerke"] },
     { date: "Uge 44", text: "Idræt: højdespringsvideo uploadet og valgt", ids: ["u44-id-video", "u44-id-valg"] },
     { date: "Uge 44", text: "Fransk: Guadeloupe og Danmark færdig", ids: ["u44-fr-guade"] },
-    { date: "2.–6. nov", text: "Projektuge", ids: ["u45-pr-plan", "u45-pr-arb", "u45-pr-aflev"] },
+    { date: "Man 2/11", text: "Projekt: gruppekontrakt godkendt", ids: ["u45-pr-kontrakt"] },
+    { date: "Tor 5/11", text: "Projekt: produkt og synopsis afleveret", ids: ["u45-pr-aflever"] },
+    { date: "Fre 6/11", text: "Projekt: fremlæggelse", ids: ["u45-pr-frem"] },
     { date: "Ons 11/11", text: "Matematik: Sholé-dag", ids: ["u46-ma-shole"] },
   ],
 };
