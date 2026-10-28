@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Antons lektier</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lektier">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f5f6f2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12151c" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: phone-first single column; sticky top bar with week switcher, then progress, deadlines and subject cards */
+:root {
+  --bg: #f5f6f2; --paper: #ffffff; --ink: #1d2433; --muted: #5e6675; --line: #dde0d8;
+  --accent: #2f55d4; --accent-soft: #e6ebfb; --hl: #f4c430; --hl-soft: #fdf3cf;
+  --ok: #24804a; --ok-soft: #e1f2e7; --warn: #b5541c;
+  --display: "Bricolage Grotesque", -apple-system, system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", -apple-system, system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #12151c; --paper: #1b1f29; --ink: #e8eaf0; --muted: #9aa2b2; --line: #2d3342;
+  --accent: #8ea6ff; --accent-soft: #232c4a; --hl-soft: #3a3217;
+  --ok: #5fcf8a; --ok-soft: #1b3326; --warn: #f0935a; color-scheme: dark } }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.5 var(--body); -webkit-tap-highlight-color: transparent;
+  padding-bottom: env(safe-area-inset-bottom, 0px); }
+button { font: inherit; color: inherit; }
+
+.top { position: sticky; top: 0; z-index: 5; background: var(--bg);
+  padding: calc(env(safe-area-inset-top, 0px) + 10px) max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px));
+  border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
+.top-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+h1 { font: 800 24px/1.1 var(--display); margin: 0; letter-spacing: -.01em; }
+.sync { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted);
+  background: none; border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px; cursor: pointer; }
+.sync i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.sync.on i { background: var(--ok); }
+.sync.err i { background: var(--warn); }
+.sync.busy i { background: var(--hl); }
+
+.weeks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: var(--line); padding: 3px; border-radius: 10px; }
+.weeks button { border: 0; background: transparent; border-radius: 8px; padding: 8px 4px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.weeks button b { font: 700 15px/1.1 var(--display); }
+.weeks button span { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.weeks button[aria-selected="true"] { background: var(--paper); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+.weeks button:focus-visible, .chip:focus-visible, .sync:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+main { padding: 16px max(16px, env(safe-area-inset-right, 0px)) 40px max(16px, env(safe-area-inset-left, 0px));
+  display: flex; flex-direction: column; gap: 16px; max-width: 680px; margin: 0 auto; }
+
+.progress { display: flex; flex-direction: column; gap: 8px; }
+.progress-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.progress .num { font: 800 32px/1 var(--display); font-variant-numeric: tabular-nums; }
+.progress .num small { font: 400 15px var(--body); color: var(--muted); }
+.bar { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ok); width: 0; transition: width .3s; }
+.chip { border: 1px solid var(--line); background: var(--paper); border-radius: 999px; padding: 6px 12px; font-size: 14px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.note { margin: 0; padding: 10px 14px; background: var(--accent-soft); border-radius: 10px; font-size: 15px; }
+
+.deadlines { background: var(--hl-soft); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.deadlines h2 { font: 700 15px/1.2 var(--display); margin: 0; }
+.deadlines ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 15px; }
+.deadlines li { display: grid; grid-template-columns: 78px minmax(0,1fr); gap: 8px; }
+.deadlines .d { font-weight: 700; font-variant-numeric: tabular-nums; }
+.deadlines li.done span:last-child { text-decoration: line-through; color: var(--muted); }
+
+.subject { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 12px;
+  display: flex; flex-direction: column; gap: 8px; }
+.subject h3 { font: 700 17px/1.2 var(--display); margin: 0 2px; display: flex; justify-content: space-between; gap: 8px; }
+.subject h3 .cnt { font: 400 13px/1.4 var(--body); color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.subject.complete h3 .cnt { color: var(--ok); font-weight: 700; }
+.info { margin: 0 2px; padding: 0; list-style: none; color: var(--muted); font-size: 14px; display: flex; flex-direction: column; gap: 2px; }
+.info li::before { content: "I timen · "; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; }
+
+.tasks { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.task label { display: grid; grid-template-columns: 28px minmax(0,1fr); gap: 10px; align-items: start;
+  padding: 10px; border-radius: 10px; background: var(--bg); cursor: pointer; min-height: 48px; }
+.task input { appearance: none; -webkit-appearance: none; width: 26px; height: 26px; margin: 0; border: 2px solid var(--muted);
+  border-radius: 7px; display: grid; place-content: center; background: var(--paper); cursor: pointer; }
+.task input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.task input:checked { background: var(--ok); border-color: var(--ok); }
+.task input:checked::after { content: ""; width: 7px; height: 13px; border: solid var(--paper); border-width: 0 3px 3px 0; transform: translateY(-1px) rotate(45deg); }
+.task .txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.task .what { font-weight: 700; }
+.task .why { font-size: 14px; color: var(--muted); }
+.task.done label { background: var(--ok-soft); }
+.task.done .what { text-decoration: line-through; text-decoration-color: var(--ok); }
+.tag { display: inline-block; font: 700 11px/1 var(--body); letter-spacing: .06em; text-transform: uppercase;
+  padding: 4px 7px; border-radius: 4px; vertical-align: 2px; margin-right: 6px; }
+.tag.lektie { background: var(--hl); color: #1d2433; }
+.tag.forbered { background: var(--accent-soft); color: var(--accent); }
+.tag.medbring { background: var(--line); color: var(--ink); }
+.due { color: var(--warn); font-weight: 700; }
+.empty { text-align: center; color: var(--muted); padding: 24px 8px; }
+footer { font-size: 13px; color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-row">
+    <h1>Antons lektier</h1>
+    <button class="sync" id="sync" type="button" aria-live="polite"><i></i><span>Kun på denne telefon</span></button>
+  </div>
+  <div class="weeks" role="tablist" id="weeks"></div>
+</header>
+
+<main>
+  <section class="progress" aria-live="polite">
+    <div class="progress-row">
+      <span class="num" id="num">0<small> af 0 lavet</small></span>
+      <button class="chip" id="filter" type="button" aria-pressed="false">Kun det der mangler</button>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
+  </section>
+
+  <p class="note" id="note" hidden></p>
+
+  <section class="deadlines" aria-labelledby="dl-h">
+    <h2 id="dl-h">Vigtige datoer</h2>
+    <ul id="deadlines"></ul>
+  </section>
+
+  <div id="subjects" style="display:flex;flex-direction:column;gap:12px"></div>
+
+  <footer>Ugeplanen viser ikke altid hvilken dag en time ligger, så opgaverne er samlet pr. fag. Tjek Aula for den præcise dag.</footer>
+</main>
+
+<script src="config.js"></script>
+<script src="plan.js"></script>
+<script>
+const { weeks: WEEKS, deadlines: DEADLINES } = window.PLAN;
+const CFG = window.CONFIG || {};
+const TAGS = { lektie: "Lektie", forbered: "Forbered", medbring: "Medbring" };
+const LS_DONE = "lektier-done", LS_PENDING = "lektier-pending", LS_FILTER = "lektier-filter";
+const remote = !!(CFG.supabaseUrl && CFG.supabaseKey && CFG.family);
+
+const read = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
+const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+let done = read(LS_DONE, {});            // id -> true/false
+let pending = read(LS_PENDING, {});      // id -> {done, at} not yet sent
+let onlyMissing = read(LS_FILTER, false);
+let current = weekForToday();
+
+function weekForToday() {
+  const today = new Date().toISOString().slice(0, 10);
+  let id = WEEKS[0].id;
+  WEEKS.forEach(w => { if (w.start <= today) id = w.id; });
+  return id;
+}
+
+function idsOf(w) { return w.subjects.flatMap(s => s.tasks.map(t => t.id)); }
+
+function renderTabs() {
+  document.getElementById("weeks").innerHTML = WEEKS.map(w => {
+    const ids = idsOf(w), n = ids.filter(id => done[id]).length;
+    return `<button type="button" role="tab" aria-selected="${w.id === current}" data-week="${w.id}">
+      <b>${esc(w.name)}</b><span>${n}/${ids.length}${w.id === weekForToday() ? " · nu" : ""}</span></button>`;
+  }).join("");
+}
+
+function render() {
+  const w = WEEKS.find(x => x.id === current);
+  renderTabs();
+  const ids = idsOf(w), n = ids.filter(id => done[id]).length;
+  document.getElementById("num").innerHTML = `${n}<small> af ${ids.length} lavet</small>`;
+  document.getElementById("bar").style.width = ids.length ? (n / ids.length * 100) + "%" : "0";
+  const fb = document.getElementById("filter");
+  fb.setAttribute("aria-pressed", onlyMissing);
+  const note = document.getElementById("note");
+  note.hidden = !w.note; note.textContent = w.note || "";
+
+  document.getElementById("deadlines").innerHTML = DEADLINES.map(d => {
+    const ok = d.ids.every(id => done[id]);
+    return `<li class="${ok ? "done" : ""}"><span class="d">${esc(d.date)}</span><span>${esc(d.text)}${ok ? " ✓" : ""}</span></li>`;
+  }).join("");
+
+  const cards = w.subjects.map(s => {
+    const all = s.tasks.length, k = s.tasks.filter(t => done[t.id]).length;
+    const shown = onlyMissing ? s.tasks.filter(t => !done[t.id]) : s.tasks;
+    if (onlyMissing && !shown.length) return "";
+    return `<article class="subject${all && k === all ? " complete" : ""}">
+      <h3>${esc(s.name)}<span class="cnt">${all ? (k === all ? "Alt lavet ✓" : `${k} af ${all}`) : ""}</span></h3>
+      ${shown.length ? `<ul class="tasks">${shown.map(t => `
+        <li class="task${done[t.id] ? " done" : ""}">
+          <label for="cb-${t.id}">
+            <input type="checkbox" id="cb-${t.id}" data-id="${t.id}"${done[t.id] ? " checked" : ""}>
+            <span class="txt">
+              <span class="what"><b class="tag ${t.kind}">${TAGS[t.kind]}</b>${esc(t.what)}</span>
+              ${t.due || t.why ? `<span class="why">${t.due ? `<span class="due">${esc(t.due)}</span>${t.why ? " · " : ""}` : ""}${t.why ? esc(t.why) : ""}</span>` : ""}
+            </span>
+          </label>
+        </li>`).join("")}</ul>` : ""}
+      ${!onlyMissing && s.info.length ? `<ul class="info">${s.info.map(i => `<li>${esc(i)}</li>`).join("")}</ul>` : ""}
+    </article>`;
+  }).join("");
+  document.getElementById("subjects").innerHTML = cards || `<p class="empty">Alt er lavet i ${esc(w.name.toLowerCase())}. Godt gået!</p>`;
+}
+
+/* ---------- sync with Supabase ---------- */
+function headers(extra) {
+  const h = { apikey: CFG.supabaseKey, "Content-Type": "application/json", ...extra };
+  if (CFG.supabaseKey.startsWith("eyJ")) h.Authorization = "Bearer " + CFG.supabaseKey;
+  return h;
+}
+const api = () => CFG.supabaseUrl.replace(/\/$/, "") + "/rest/v1/afkrydsning";
+
+function setSync(state, text) {
+  const b = document.getElementById("sync");
+  b.className = "sync " + state;
+  b.querySelector("span").textContent = text;
+}
+
+async function pull() {
+  const res = await fetch(`${api()}?family=eq.${encodeURIComponent(CFG.family)}&select=id,done`, { headers: headers(), cache: "no-store" });
+  if (!res.ok) throw new Error("pull " + res.status);
+  const rows = await res.json();
+  const next = {};
+  rows.forEach(r => { next[r.id] = !!r.done; });
+  Object.entries(pending).forEach(([id, p]) => { next[id] = p.done; });
+  done = next; write(LS_DONE, done);
+}
+
+async function push() {
+  const rows = Object.entries(pending).map(([id, p]) => ({ family: CFG.family, id, done: p.done, at: p.at }));
+  if (!rows.length) return;
+  const res = await fetch(`${api()}?on_conflict=family,id`, {
+    method: "POST", headers: headers({ Prefer: "resolution=merge-duplicates,return=minimal" }), body: JSON.stringify(rows)
+  });
+  if (!res.ok) throw new Error("push " + res.status);
+  rows.forEach(r => { if (pending[r.id] && pending[r.id].at === r.at) delete pending[r.id]; });
+  write(LS_PENDING, pending);
+}
+
+let syncing = false;
+async function sync() {
+  if (!remote || syncing) return;
+  syncing = true;
+  setSync("busy", "Opdaterer …");
+  try {
+    await push();
+    await pull();
+    setSync("on", "Delt · " + new Date().toLocaleTimeString("da-DK", { hour: "2-digit", minute: "2-digit" }));
+    render();
+  } catch (e) {
+    setSync("err", Object.keys(pending).length ? "Ikke sendt endnu" : "Offline");
+  } finally {
+    syncing = false;
+  }
+}
+
+/* ---------- events ---------- */
+document.getElementById("subjects").addEventListener("change", e => {
+  const cb = e.target.closest("input[type=checkbox]");
+  if (!cb) return;
+  done[cb.dataset.id] = cb.checked;
+  write(LS_DONE, done);
+  if (remote) { pending[cb.dataset.id] = { done: cb.checked, at: new Date().toISOString() }; write(LS_PENDING, pending); }
+  render();
+  sync();
+});
+document.getElementById("weeks").addEventListener("click", e => {
+  const b = e.target.closest("button[data-week]");
+  if (!b) return;
+  current = b.dataset.week;
+  render(); window.scrollTo(0, 0);
+});
+document.getElementById("filter").addEventListener("click", () => {
+  onlyMissing = !onlyMissing; write(LS_FILTER, onlyMissing); render();
+});
+document.getElementById("sync").addEventListener("click", sync);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) sync(); });
+window.addEventListener("online", sync);
+setInterval(() => { if (!document.hidden) sync(); }, 20000);
+
+render();
+if (remote) sync();
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>
