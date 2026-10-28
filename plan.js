@@ -35,6 +35,7 @@ window.PLAN = {
         { name: "Fransk", info: ["Lytte- og læsetest på Alinea"],
           tasks: [
             { id: "u44-fr-guade", kind: "lektie", what: "Færdiggør opgaven om Guadeloupe og Danmark", why: "Skal være færdig inden projektugen." },
+            { id: "u44-fr-proeve", kind: "forbered", what: "Vær klar til lytte- og læsetest på Alinea", why: "Testen er rykket frem til denne uge pga. projektugen. Husk høretelefoner og login." },
           ] },
         { name: "Idræt", info: ["Bevægelsesanalyse: krav, selvstændigt arbejde og afleveringsdato"],
           tasks: [
