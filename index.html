@@ -106,6 +106,31 @@ main { padding: 16px max(16px, env(safe-area-inset-right, 0px)) 40px max(16px, e
 .empty { text-align: center; color: var(--muted); padding: 24px 8px; }
 footer { font-size: 13px; color: var(--muted); }
 
+body { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 64px); }
+.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--paper); border-top: 1px solid var(--line);
+  display: grid; grid-template-columns: 1fr 1fr;
+  padding: 6px max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 6px) max(16px, env(safe-area-inset-left, 0px)); }
+.tabbar button { border: 0; background: none; padding: 8px; border-radius: 10px; cursor: pointer;
+  font: 700 15px/1.2 var(--display); color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.tabbar button svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tabbar button[aria-selected="true"] { color: var(--accent); }
+.tabbar button:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+
+.day { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 6px; scroll-margin-top: 140px; }
+.day.today { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.day h3 { font: 700 17px/1.2 var(--display); margin: 0 2px; display: flex; align-items: center; gap: 8px; }
+.day h3 .date { font: 400 14px var(--body); color: var(--muted); font-variant-numeric: tabular-nums; }
+.pill { font: 700 11px/1 var(--body); letter-spacing: .06em; text-transform: uppercase; background: var(--accent); color: var(--paper); padding: 4px 7px; border-radius: 999px; }
+.lessons { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.lesson { display: grid; grid-template-columns: 34px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; background: var(--bg); }
+.lesson .slot { font: 700 13px/1 var(--body); color: var(--muted); font-variant-numeric: tabular-nums; text-align: center; }
+.lesson .name { font-weight: 700; }
+.lesson .meta { font-size: 13px; color: var(--muted); }
+.lesson .open { font: 700 12px/1 var(--body); background: var(--hl); color: #1d2433; padding: 5px 8px; border-radius: 999px; white-space: nowrap; }
+.lesson .open.ok { background: var(--ok-soft); color: var(--ok); }
+
+body[data-view="tasks"] .s-only, body[data-view="schedule"] .t-only { display: none !important; }
+
 @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
 </style>
 </head>
@@ -119,7 +144,11 @@ footer { font-size: 13px; color: var(--muted); }
 </header>
 
 <main>
-  <section class="progress" aria-live="polite">
+  <p class="note s-only" id="snote" hidden></p>
+  <div class="s-only" id="days" style="display:flex;flex-direction:column;gap:12px"></div>
+  <footer class="s-only">Skemaet er taget fra Aula uden klokkeslæt, så timerne er nummereret i rækkefølge. Den gule markering viser lektier, der mangler i faget i denne uge.</footer>
+
+  <section class="progress t-only" aria-live="polite">
     <div class="progress-row">
       <span class="num" id="num">0<small> af 0 lavet</small></span>
       <button class="chip" id="filter" type="button" aria-pressed="false">Kun det der mangler</button>
@@ -127,17 +156,24 @@ footer { font-size: 13px; color: var(--muted); }
     <div class="bar"><i id="bar"></i></div>
   </section>
 
-  <p class="note" id="note" hidden></p>
+  <p class="note t-only" id="note" hidden></p>
 
-  <section class="deadlines" aria-labelledby="dl-h">
+  <section class="deadlines t-only" aria-labelledby="dl-h">
     <h2 id="dl-h">Vigtige datoer</h2>
     <ul id="deadlines"></ul>
   </section>
 
-  <div id="subjects" style="display:flex;flex-direction:column;gap:12px"></div>
+  <div class="t-only" id="subjects" style="display:flex;flex-direction:column;gap:12px"></div>
 
-  <footer>Ugeplanen viser ikke altid hvilken dag en time ligger, så opgaverne er samlet pr. fag. Tjek Aula for den præcise dag.</footer>
+  <footer class="t-only">Ugeplanen viser ikke altid hvilken dag en time ligger, så opgaverne er samlet pr. fag. Tjek Aula for den præcise dag.</footer>
 </main>
+
+<nav class="tabbar" role="tablist" aria-label="Visning">
+  <button type="button" role="tab" data-view="tasks" aria-selected="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 12l3 3 5-6"/></svg>Lektier</button>
+  <button type="button" role="tab" data-view="schedule" aria-selected="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Skema</button>
+</nav>
 
 <script src="config.js"></script>
 <script src="plan.js"></script>
@@ -210,7 +246,54 @@ function render() {
     </article>`;
   }).join("");
   document.getElementById("subjects").innerHTML = cards || `<p class="empty">Alt er lavet i ${esc(w.name.toLowerCase())}. Godt gået!</p>`;
+  renderSchedule(w);
 }
+
+/* ---------- schedule ---------- */
+const DAYS = [["man", "Mandag"], ["tir", "Tirsdag"], ["ons", "Onsdag"], ["tor", "Torsdag"], ["fre", "Fredag"]];
+const todayIso = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+
+function renderSchedule(w) {
+  const sched = window.PLAN.schedules && window.PLAN.schedules[w.schedule];
+  const snote = document.getElementById("snote");
+  snote.hidden = !w.scheduleNote; snote.textContent = w.scheduleNote || "";
+  if (!sched) { document.getElementById("days").innerHTML = `<p class="empty">Der er ikke noget skema for ${esc(w.name.toLowerCase())} endnu.</p>`; return; }
+  const open = {};
+  w.subjects.forEach(s => { const left = s.tasks.filter(t => !done[t.id]).length; open[s.name] = { left, all: s.tasks.length }; });
+  const [y, m, d] = w.start.split("-").map(Number);
+  document.getElementById("days").innerHTML = DAYS.map(([key, label], i) => {
+    const date = new Date(y, m - 1, d + i);
+    const iso = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    const isToday = iso === todayIso();
+    let slot = 1;
+    const rows = (sched[key] || []).map(l => {
+      const n = l.n || 1;
+      const slotTxt = l.time ? "" : (n > 1 ? `${slot}–${slot + n - 1}` : `${slot}`);
+      slot += n;
+      const meta = [l.time, l.room, l.teacher].filter(Boolean).map(esc).join(" · ");
+      const o = open[l.subject];
+      const chip = o && o.all ? (o.left ? `<span class="open">${o.left} mangler</span>` : `<span class="open ok">Klar ✓</span>`) : "";
+      return `<li class="lesson"><span class="slot">${slotTxt}</span>
+        <span><span class="name">${esc(l.subject)}</span>${meta ? `<br><span class="meta">${meta}</span>` : ""}</span>${chip}</li>`;
+    }).join("");
+    return `<article class="day${isToday ? " today" : ""}" id="day-${key}">
+      <h3>${label} <span class="date">${date.getDate()}/${date.getMonth() + 1}</span>${isToday ? `<span class="pill">I dag</span>` : ""}</h3>
+      <ul class="lessons">${rows}</ul></article>`;
+  }).join("");
+}
+
+let view = read("lektier-view", "tasks");
+function setView(v, scroll) {
+  view = v; write("lektier-view", v);
+  document.body.dataset.view = v;
+  document.querySelectorAll(".tabbar button").forEach(b => b.setAttribute("aria-selected", b.dataset.view === v));
+  window.scrollTo(0, 0);
+  if (scroll && v === "schedule") { const t = document.querySelector(".day.today"); if (t) t.scrollIntoView({ block: "start" }); }
+}
+document.querySelector(".tabbar").addEventListener("click", e => {
+  const b = e.target.closest("button[data-view]");
+  if (b) setView(b.dataset.view, true);
+});
 
 /* ---------- sync with Supabase ---------- */
 function headers(extra) {
@@ -289,8 +372,9 @@ window.addEventListener("online", sync);
 setInterval(() => { if (!document.hidden) sync(); }, 20000);
 
 render();
+setView(view, true);
 if (remote) sync();
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch(() => {});
 </script>
 </body>
 </html>

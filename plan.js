@@ -3,10 +3,34 @@
 // ellers forsvinder fluebenet for den opgave.
 // kind: "lektie" (hjemme), "forbered" (vær klar til timen), "medbring" (husk i tasken)
 
+// Skema: timerne står i rækkefølge for hver dag. n = antal lektioner i træk.
+// Lokale 209 er klassens eget og vises ikke.
+const SUBJ = { MAT: "Matematik", ENG: "Engelsk", BIO: "Biologi", GEO: "Geografi", FK: "Fysik/kemi", SAM: "Samfundsfag",
+  DAN: "Dansk", KRI: "Kristendomskundskab", FRA: "Fransk", HIS: "Historie", IDR: "Idræt", KM: "Klassens time" };
+const L = (s, n, teacher, room) => ({ subject: SUBJ[s], n, teacher, room: room || "" });
+
 window.PLAN = {
+  schedules: {
+    normal: {
+      man: [L("MAT", 2, "JRJ, KM"), L("ENG", 2, "AF"), L("BIO", 1, "MP", "313 Biologi"), L("BIO", 1, "MP"), L("GEO", 1, "MP"), L("FK", 1, "MP")],
+      tir: [L("MAT", 2, "JRJ, KM"), L("SAM", 2, "LMA"), L("DAN", 3, "MSJ, SCO")],
+      ons: [L("KRI", 1, "AF"), L("FRA", 1, "AF"), L("HIS", 2, "LMA"), L("ENG", 1, "AF")],
+      tor: [L("FRA", 2, "AF"), L("DAN", 2, "MSJ, SCO"), L("MAT", 1, "JRJ, KM"), L("IDR", 2, "", "Hal 3, med 9C")],
+      fre: [L("IDR", 2, "MD", "Hal 2, hele 9. årgang"), L("DAN", 2, "MSJ, SCO"), L("KM", 1, "SCO"), L("FK", 2, "MP", "308 Fysik/kemi")],
+    },
+    projektuge: {
+      man: [{ subject: "Projekt: problemstilling og gruppekontrakt", time: "08:45–13:30" }],
+      tir: [{ subject: "Projekt: research og produkt", time: "08:45–13:30" }],
+      ons: [{ subject: "Projekt: research og produkt", time: "08:45–13:30" }],
+      tor: [{ subject: "Projekt: aflevering af produkt og synopsis", time: "08:45–13:30" }],
+      fre: [{ subject: "Projekt: fremlæggelser", time: "Se fremlæggelsesplanen" }],
+    },
+  },
+
   weeks: [
     {
       id: "u44", name: "Uge 44", dates: "26.–30. okt", start: "2026-10-26",
+      schedule: "normal", scheduleNote: "Torsdag: vikar i idræt.",
       subjects: [
         { name: "Dansk", info: ["Opstart på podcast-forløb: teori og lydklip", "“Ulriks telefon” og “Hitler på teenageværelset” med spørgsmål", "Retskrivnings- og læseprøver", "Læseboost"],
           tasks: [
@@ -60,6 +84,7 @@ window.PLAN = {
     },
     {
       id: "u45", name: "Uge 45", dates: "2.–6. nov", start: "2026-11-02",
+      schedule: "projektuge", scheduleNote: "Projektuge: tjek ind hos vejlederen kl. 08:45 og ud kl. 13:30.",
       note: "Projektuge. Tjek ind hos vejlederen kl. 08:45 og ud kl. 13:30 hver dag. Arbejde hjemme eller ude i byen skal aftales med vejlederen og skrives på tavlen. Der gives ingen karakter, men en skriftlig udtalelse, som også sendes til forældrene senest 20. november.",
       subjects: [
         { name: "Mandag 2/11: Problemstilling", info: ["Tema: Kriser, Udvikling og betydning eller Modsætninger"],
@@ -98,6 +123,7 @@ window.PLAN = {
     },
     {
       id: "u46", name: "Uge 46", dates: "9.–13. nov", start: "2026-11-09",
+      schedule: "normal", scheduleNote: "Normalskemaet fra uge 44. Tjek Aula for ændringer, fx Sholé-dagen onsdag.",
       subjects: [
         { name: "Matematik", info: ["Den store Sholé-dag onsdag 11. november"],
           tasks: [
