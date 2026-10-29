@@ -131,6 +131,13 @@ body { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 64px); }
 .lesson .meta { font-size: 13px; color: var(--muted); }
 .lesson .open { font: 700 12px/1 var(--body); background: var(--hl); color: #1d2433; padding: 5px 8px; border-radius: 999px; white-space: nowrap; }
 .lesson .open.ok { background: var(--ok-soft); color: var(--ok); }
+button.open { border: 0; cursor: pointer; padding: 8px 10px; }
+button.open:active { transform: scale(.96); }
+button.open:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.subject { scroll-margin-top: 150px; }
+.subject.flash { animation: flash 1.6s ease-out; }
+@keyframes flash { 0%, 30% { border-color: var(--hl); box-shadow: 0 0 0 3px var(--hl); } 100% { box-shadow: 0 0 0 0 transparent; } }
+@media (prefers-reduced-motion: reduce) { .subject.flash { animation: none; border-color: var(--hl); } }
 
 body[data-view="tasks"] .s-only, body[data-view="schedule"] .t-only { display: none !important; }
 
@@ -233,7 +240,7 @@ function render() {
     const all = s.tasks.length, k = s.tasks.filter(t => done[t.id]).length;
     const shown = onlyMissing ? s.tasks.filter(t => !done[t.id]) : s.tasks;
     if (onlyMissing && !shown.length) return "";
-    return `<article class="subject${all && k === all ? " complete" : ""}">
+    return `<article class="subject${all && k === all ? " complete" : ""}" data-name="${esc(s.name)}">
       <h3>${esc(s.name)}<span class="cnt">${all ? (k === all ? "Alt lavet ✓" : `${k} af ${all}`) : ""}</span></h3>
       ${shown.length ? `<ul class="tasks">${shown.map(t => `
         <li class="task${done[t.id] ? " done" : ""}">
@@ -271,7 +278,7 @@ function renderSchedule(w) {
     const bells = window.PLAN.bells || [];
     // Split a run of lessons wherever a break falls inside it, so pauses and lunch show.
     const lessons = (sched[key] || []).flatMap(l => {
-      if (!l.start) return [l];
+      if (!l.start || !bells.length) return [{ from: "", to: "", ...l }];
       const parts = [];
       for (let i = l.start - 1; i < l.start - 1 + (l.n || 1); i++) {
         const last = parts[parts.length - 1];
@@ -284,17 +291,21 @@ function renderSchedule(w) {
     let prevEnd = null;
     const rows = lessons.map(l => {
       let gap = "";
-      if (prevEnd && mins(l.from) > mins(prevEnd)) {
+      if (prevEnd && l.from && mins(l.from) > mins(prevEnd)) {
         gap = `<li class="gap">${mins(l.from) - mins(prevEnd) >= 30 ? "Frokost" : "Pause"} ${prevEnd}–${l.from}</li>`;
       }
       prevEnd = l.to;
       const meta = [l.room, l.teacher].filter(Boolean).map(esc).join(" · ");
       const o = open[l.subject];
-      const chip = o && o.all ? (o.left ? `<span class="open">${o.left} mangler</span>` : `<span class="open ok">Klar ✓</span>`) : "";
+      const chip = o && o.all
+        ? (o.left
+          ? `<button type="button" class="open" data-goto="${esc(l.subject)}" aria-label="Se de ${o.left} lektier i ${esc(l.subject)}">${o.left} mangler ›</button>`
+          : `<span class="open ok">Klar ✓</span>`)
+        : "";
       return `${gap}<li class="lesson"><span class="slot">${l.from}<small>${l.to}</small></span>
         <span><span class="name">${esc(l.subject)}</span>${meta ? `<br><span class="meta">${meta}</span>` : ""}</span>${chip}</li>`;
     }).join("");
-    const span = lessons.length ? `${lessons[0].from}–${lessons[lessons.length - 1].to}` : "";
+    const span = lessons.length && lessons[0].from ? `${lessons[0].from}–${lessons[lessons.length - 1].to}` : "";
     return `<article class="day${isToday ? " today" : ""}" id="day-${key}">
       <h3>${label} <span class="date">${date.getDate()}/${date.getMonth() + 1}</span>${isToday ? `<span class="pill">I dag</span>` : ""}<span class="span">${span}</span></h3>
       <ul class="lessons">${rows}</ul></article>`;
@@ -309,6 +320,15 @@ function setView(v, scroll) {
   window.scrollTo(0, 0);
   if (scroll && v === "schedule") { const t = document.querySelector(".day.today"); if (t) t.scrollIntoView({ block: "start" }); }
 }
+document.getElementById("days").addEventListener("click", e => {
+  const b = e.target.closest("button[data-goto]");
+  if (!b) return;
+  setView("tasks");
+  const card = [...document.querySelectorAll("#subjects .subject")].find(c => c.dataset.name === b.dataset.goto);
+  if (!card) return;
+  card.scrollIntoView({ block: "start" });
+  card.classList.remove("flash"); void card.offsetWidth; card.classList.add("flash");
+});
 document.querySelector(".tabbar").addEventListener("click", e => {
   const b = e.target.closest("button[data-view]");
   if (b) setView(b.dataset.view, true);
