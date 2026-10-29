@@ -1,5 +1,7 @@
 // Årsplaner for skoleåret 2026/2027, fra Meebook → Årsplaner.
-// start = mandag i den uge, forløbet begynder. Et forløb varer, til det næste begynder.
+// start = mandag i den uge, forløbet begynder. end (valgfri) = sidste dag.
+// Uden end varer et forløb, til fagets næste forløb begynder.
+// goals = læringsmål, chapters = kapitler [titel, link], tips = gode råd.
 // Tilføj et fag ved at sende fagets årsplan fra Meebook til Claude.
 
 window.AARSPLAN = {
@@ -26,6 +28,67 @@ window.AARSPLAN = {
   ],
 
   subjects: [
+    {
+      name: "Dansk",
+      forloeb: [
+        { start: "2026-08-10", title: "Romantikken", id: "12528477" },
+        { start: "2026-08-31", title: "Tur til Glyptoteket (tirsdag kl. 12.30)", id: "12528480" },
+        { start: "2026-09-14", title: "Det moderne gennembrud", id: "12528481" },
+        { start: "2026-09-28", title: "Skriftlig opgave: tale", id: "12528484" },
+        { start: "2026-10-05", title: "Tur til SMK (tirsdag kl. 12.15)", id: "12696803" },
+        { start: "2026-10-19", end: "2026-11-12", title: "Podcast og lydfortællinger", id: "12528487",
+          topics: "Analyse af lydfortællinger: dramaturgi, stemmer og lyde. Fiktive og ikke-fiktive lydserier, berettermodellen, spændingsgreb, fortalt tid og fortælletid.",
+          goals: [
+            "Analysere en lydfortælling med fokus på dramaturgi, stemmer og lyde",
+            "Fortælle mundtligt om en lydfortællings dramaturgi, stemmer eller lyde",
+            "Lave en selvstændig analyse af en lydfortælling",
+            "Bruge det til den mundtlige afgangsprøve i dansk",
+          ],
+          chapters: [
+            ["Teori: dramaturgi, stemmer og lyde"],
+            ["Stemmer: eksempler", "https://radiodrama.dk/stemmeproever"],
+            ["Lyde: eksempler", "https://radiodrama.dk/handlingslyd"],
+            ["Mørkevandring", "https://radiodrama.dk/moerkevandring"],
+            ["Ulriks telefon", "https://radiodrama.dk/ulriks-telefon"],
+            ["Hitler på teenageværelset (DR Genstart)", "https://www.dr.dk/lyd/special-radio/genstart/genstart-2023/genstart-hitler-paa-teenagevaerelset-11802350123"],
+            ["Berettermodellen", "https://filmcentralen.dk/grundskolen/filmsprog/berettermodellen"],
+            ["Drengen på knallerten (Third Ear)", "https://podcasts.apple.com/ee/podcast/third-ear-x-politiken/id1046860825"],
+            ["Kvinden med den tunge kuffert", "https://thirdear.studio/da/pods/kuffert"],
+            ["Analyse af selvvalgt podcast", "https://indidansk.dk/podcast/"],
+            ["Evaluering: lav en begrebsliste"],
+          ] },
+        { start: "2026-11-02", title: "Projektopgave", id: "12844180" },
+        { start: "2026-11-16", title: "Opinionsgenren: essay og debatindlæg", id: "12528489" },
+        { start: "2026-11-16", title: "Fokus på læse- og retskrivningsprøven", id: "12528491" },
+        { start: "2027-01-25", title: "Terminsprøver", id: "12784483" },
+        { start: "2027-02-01", title: "Praktik", id: "12784486" },
+        { start: "2027-02-22", title: "Kortfilm", id: "12528492" },
+        { start: "2027-03-15", title: "Tobias Rahim", id: "12528497" },
+        { start: "2027-04-12", title: "Pressefoto", id: "12528500" },
+        { start: "2027-04-19", title: "Klar til mundtlig eksamen", id: "12528513" },
+      ],
+    },
+    {
+      name: "Fransk",
+      forloeb: [
+        { start: "2026-08-10", title: "Le racisme", id: "12560442" },
+        { start: "2026-10-05", end: "2026-11-26", title: "Le monde francophone", id: "12560444",
+          topics: "De fransktalende lande i verden. Undersøg et land: hvor det ligger, sprog, hvorfor man taler fransk der, og hvad landet er kendt for.",
+          chapters: [
+            ["La Francophonie", "https://fransk.gyldendal.dk/culture/le-monde-francophone/le_monde_francophone_kort"],
+            ["La Guadeloupe", "https://fransk.gyldendal.dk/culture/le-monde-francophone/la_guadaloupe/kapitler/1_fiche_dintite"],
+            ["La Belgique", "https://fransk.gyldendal.dk/culture/le-monde-francophone/la_belgique/kapitler/1_fiche_dintite"],
+            ["Le Québec (tekst, gloser og spørgsmål)"],
+            ["Présentation d'un pays francophone (gruppe)"],
+            ["Opsummerende sætninger: oversæt og find verbernes tid"],
+          ],
+          tips: "Præsentationen: ca. 5 minutter på fransk, med billeder og stikord. Brug egne sætninger, læs ikke op, og slut med din egen mening." },
+        { start: "2026-11-23", title: "L'adolescence", id: "12560445" },
+        { start: "2027-02-08", title: "La musique francophone", id: "12560448",
+          topics: "Fransksproget musik i forskellige stilarter, fx Stromae, Maître Gims og MHD. 12 lektioner." },
+        { start: "2027-04-05", title: "Eksamensforberedelse og dispositioner", id: "12560450" },
+      ],
+    },
     {
       name: "Matematik",
       forloeb: [
@@ -59,6 +122,53 @@ window.AARSPLAN = {
         { start: "2027-04-19", title: "Få styr på det sidste", id: "12489454",
           topics: "Repetition af det, du selv har brug for." },
         { start: "2027-05-10", title: "Forberedelse til mundtlige prøver", id: "12489455" },
+      ],
+    },
+    {
+      name: "Samfundsfag",
+      forloeb: [
+        { start: "2026-08-10", title: "Terrorisme", id: "12324192",
+          topics: "Hvad terrorisme er, og hvor stor risikoen er i Danmark." },
+        { start: "2026-09-14", title: "Kriminalitet", id: "12324197",
+          topics: "Hvorfor nogle bliver kriminelle, straf, og om de danske love er rimelige." },
+        { start: "2026-10-19", end: "2026-11-12", title: "Arbejdsmarkedet", id: "12324216",
+          topics: "Det danske arbejdsmarked og dets parter: lønmodtagere, arbejdsgivere og politikere.",
+          goals: [
+            "Forklare hvad det danske arbejdsmarked er",
+            "Redegøre for flexicurity, dagpenge, overenskomst og trepartsforhandlinger",
+            "Vurdere fordele og ulemper ved globalisering for danske lønmodtagere og arbejdsgivere",
+          ],
+          chapters: [
+            ["Arbejdsmarkedet (intro)", "https://portal.alinea.dk/course/rrmU-arbejdsmarkedet"],
+            ["Danskerne og jobbet", "https://portal.alinea.dk/course/rrmU-arbejdsmarkedet/chapter/rrmT-danskerne-og-jobbet"],
+            ["Flexicurity", "https://portal.alinea.dk/course/rrmU-arbejdsmarkedet/chapter/rr2D-flexicurity"],
+            ["Forhandlingsbordet", "https://portal.alinea.dk/course/rrmU-arbejdsmarkedet/chapter/rrmF-forhandlingsbordet"],
+            ["Arbejdskraften flytter sig", "https://portal.alinea.dk/course/rrmU-arbejdsmarkedet/chapter/rr24-arbejdskraften-flytter-sig"],
+            ["Kom godt i gang med prøven", "https://portal.alinea.dk/course/rrmU-arbejdsmarkedet/chapter/rr21-kom-godt-i-gang-med-proeven"],
+          ] },
+        { start: "2026-11-16", end: "2026-12-18", title: "Europas fælles projekt (EU)", id: "12324209",
+          topics: "EU's opbygning og de dilemmaer, der opstår, når mange lande skal samarbejde.",
+          goals: [
+            "Redegøre for Danmarks vej fra EFTA til EU",
+            "Forklare forskellen på mellemstatsligt og overstatsligt samarbejde",
+            "Redegøre for det indre marked og de fire friheder",
+            "Forklare hvordan EU laver love, og hvad de forskellige organer gør",
+            "Planlægge og gennemføre et projekt om EU",
+          ],
+          chapters: [
+            ["Europas fælles projekt (intro)", "https://portal.alinea.dk/course/rNiI-europas-faelles-projekt"],
+            ["En del af klubben", "https://portal.alinea.dk/course/rNiI-europas-faelles-projekt/chapter/rNiS-en-del-af-klubben"],
+            ["Samarbejde over grænser", "https://portal.alinea.dk/course/rNiI-europas-faelles-projekt/chapter/rNiU-samarbejde-over-graenser"],
+            ["Hvad er det indre marked?", "https://portal.alinea.dk/course/rNiI-europas-faelles-projekt/chapter/rjxv-hvad-er-det-indre-marked"],
+            ["Når EU vedtager love", "https://portal.alinea.dk/course/rNiI-europas-faelles-projekt/chapter/rNi2-n-ar-eu-vedtager-love"],
+            ["Projekt om EU", "https://portal.alinea.dk/course/rNiI-europas-faelles-projekt/chapter/rjxp-projekt-om-eu"],
+            ["Kom godt i gang med prøven", "https://portal.alinea.dk/course/rNiI-europas-faelles-projekt/chapter/rNRG-kom-godt-i-gang-med-proeven"],
+          ] },
+        { start: "2027-01-11", title: "Forskellige skæbner", id: "12324205",
+          topics: "Danskernes opvækst og forskellige levekår." },
+        { start: "2027-02-22", title: "Danmarks udenrigspolitik", id: "12324219",
+          topics: "Hvem der bestemmer over Danmarks indsatser i verden, fra Afrika til Arktis." },
+        { start: "2027-04-12", title: "Forberedelse til eksamerne", id: "12324226" },
       ],
     },
   ],
