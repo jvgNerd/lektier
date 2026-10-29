@@ -139,7 +139,39 @@ button.open:focus-visible { outline: 3px solid var(--accent); outline-offset: 2p
 @keyframes flash { 0%, 30% { border-color: var(--hl); box-shadow: 0 0 0 3px var(--hl); } 100% { box-shadow: 0 0 0 0 transparent; } }
 @media (prefers-reduced-motion: reduce) { .subject.flash { animation: none; border-color: var(--hl); } }
 
-body[data-view="tasks"] .s-only, body[data-view="schedule"] .t-only { display: none !important; }
+body[data-view="tasks"] .s-only, body[data-view="schedule"] .t-only,
+body:not([data-view="year"]) .y-only, body[data-view="year"] .t-only, body[data-view="year"] .s-only,
+body[data-view="year"] .weeks { display: none !important; }
+.tabbar { grid-template-columns: repeat(3, 1fr); }
+
+.year-h { font: 800 20px/1.2 var(--display); margin: 0; }
+.events { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.events li { display: grid; grid-template-columns: 92px minmax(0,1fr) auto; gap: 10px; align-items: baseline; font-size: 15px; }
+.events .d { font-weight: 700; font-variant-numeric: tabular-nums; }
+.events .rel { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.events li.exam span:nth-child(2) { font-weight: 700; color: var(--warn); }
+.plan { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.plan h3 { font: 700 17px/1.2 var(--display); margin: 0 2px; }
+.fl { border-radius: 10px; background: var(--bg); padding: 10px 12px; }
+.fl.now { background: var(--accent-soft); }
+.fl summary { cursor: pointer; list-style: none; display: grid; grid-template-columns: 60px minmax(0,1fr) auto; gap: 10px; align-items: baseline; }
+.fl .wk b { color: var(--ink); font-weight: 700; }
+.fl summary::-webkit-details-marker { display: none; }
+.fl summary::after { content: "›"; color: var(--muted); font-weight: 700; transition: transform .2s; }
+.fl[open] summary::after { transform: rotate(90deg); }
+.fl summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; border-radius: 6px; }
+.fl .wk { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.fl .t { font-weight: 700; }
+.fl .badge { font: 700 11px/1 var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-right: 6px; }
+.fl .body { margin: 8px 0 0 70px; font-size: 14px; color: var(--muted); display: flex; flex-direction: column; gap: 6px; }
+.fl .body a { color: var(--accent); font-weight: 700; }
+.more { font-size: 14px; }
+.more > summary { cursor: pointer; color: var(--accent); font-weight: 700; padding: 4px 2px; }
+.more[open] > summary { margin-bottom: 8px; }
+.more .list { display: flex; flex-direction: column; gap: 6px; }
+.fl.past { opacity: .7; }
+.events li { grid-template-columns: 112px minmax(0,1fr) auto; }
+@media (max-width: 380px) { .events li { grid-template-columns: 104px minmax(0,1fr); } .events .rel { display: none; } }
 
 @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
 </style>
@@ -154,6 +186,8 @@ body[data-view="tasks"] .s-only, body[data-view="schedule"] .t-only { display: n
 </header>
 
 <main>
+  <div class="y-only" id="year" style="display:flex;flex-direction:column;gap:16px"></div>
+
   <p class="note s-only" id="snote" hidden></p>
   <div class="s-only" id="days" style="display:flex;flex-direction:column;gap:12px"></div>
   <footer class="s-only">Tiderne er aflæst fra Aula-kalenderen og kan afvige et par minutter. Den gule markering viser lektier, der mangler i faget i denne uge.</footer>
@@ -183,10 +217,13 @@ body[data-view="tasks"] .s-only, body[data-view="schedule"] .t-only { display: n
     <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 12l3 3 5-6"/></svg>Lektier</button>
   <button type="button" role="tab" data-view="schedule" aria-selected="false">
     <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Skema</button>
+  <button type="button" role="tab" data-view="year" aria-selected="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2 2 2 0 0 0 2 2h12"/><path d="M9 7h6M9 11h4"/></svg>Årsplan</button>
 </nav>
 
 <script src="config.js"></script>
 <script src="plan.js"></script>
+<script src="aarsplan.js"></script>
 <script>
 const { weeks: WEEKS, deadlines: DEADLINES } = window.PLAN;
 const CFG = window.CONFIG || {};
@@ -312,9 +349,69 @@ function renderSchedule(w) {
   }).join("");
 }
 
-let view = read("lektier-view", "tasks");
+/* ---------- year plan ---------- */
+const MONTHS = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+const parseIso = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const shortDate = s => { const d = parseIso(s); return `${d.getDate()}. ${MONTHS[d.getMonth()]}`; };
+function dateRange(from, to) {
+  if (!to) return shortDate(from);
+  const a = parseIso(from), b = parseIso(to);
+  return a.getMonth() === b.getMonth() ? `${a.getDate()}.–${shortDate(to)}` : `${shortDate(from)}–${shortDate(to)}`;
+}
+function isoWeek(s) {
+  const d = parseIso(s); d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
+  const w1 = new Date(d.getFullYear(), 0, 4);
+  return 1 + Math.round(((d - w1) / 864e5 - 3 + ((w1.getDay() + 6) % 7)) / 7);
+}
+function relative(s) {
+  const days = Math.round((parseIso(s) - parseIso(todayIso())) / 864e5);
+  if (days <= 0) return "nu";
+  if (days === 1) return "i morgen";
+  if (days < 14) return `om ${days} dage`;
+  if (days < 60) return `om ${Math.round(days / 7)} uger`;
+  return `om ${Math.round(days / 30)} mdr.`;
+}
+
+function forloebItem(f, cls) {
+  const link = f.id ? `<a href="https://app.meebook.com/vue/book/${f.id}" target="_blank" rel="noopener">Åbn forløbet i Meebook</a>` : "";
+  const body = (f.topics ? `<span>${esc(f.topics)}</span>` : "") + link;
+  return `<details class="fl ${cls}"><summary><span class="wk"><b>Uge ${isoWeek(f.start)}</b><br>${shortDate(f.start)}</span>
+    <span class="t">${cls === "now" ? `<span class="badge">Nu</span>` : ""}${esc(f.title)}</span></summary>
+    ${body ? `<div class="body">${body}</div>` : ""}</details>`;
+}
+
+function renderYear() {
+  const Y = window.AARSPLAN;
+  const el = document.getElementById("year");
+  if (!Y) { el.innerHTML = `<p class="empty">Årsplanen er ikke indlæst.</p>`; return; }
+  const today = todayIso();
+  const upcoming = Y.events.filter(e => (e.to || e.from) >= today).slice(0, 6);
+  const events = `<section class="deadlines"><h2>Næste i skoleåret</h2><ul class="events">${upcoming.map(e =>
+    `<li class="${e.exam ? "exam" : ""}"><span class="d">${dateRange(e.from, e.to)}</span>
+      <span>${esc(e.text)}</span><span class="rel">${relative(e.from)}</span></li>`).join("")}</ul></section>`;
+
+  const plans = Y.subjects.map(s => {
+    const list = [...s.forloeb].sort((a, b) => a.start.localeCompare(b.start));
+    const starts = list.map(f => f.start).filter(d => d <= today);
+    const nowStart = starts.length ? starts[starts.length - 1] : null;
+    const now = list.filter(f => f.start === nowStart);
+    const next = list.filter(f => f.start > today);
+    const past = list.filter(f => nowStart && f.start < nowStart);
+    return `<article class="plan"><h3>${esc(s.name)}</h3>
+      ${now.map(f => forloebItem(f, "now")).join("")}
+      ${next.slice(0, 3).map(f => forloebItem(f, "")).join("")}
+      ${next.length > 3 ? `<details class="more"><summary>Resten af året (${next.length - 3})</summary><div class="list">${next.slice(3).map(f => forloebItem(f, "")).join("")}</div></details>` : ""}
+      ${past.length ? `<details class="more"><summary>Tidligere forløb (${past.length})</summary><div class="list">${past.map(f => forloebItem(f, "past")).join("")}</div></details>` : ""}
+    </article>`;
+  }).join("");
+
+  el.innerHTML = `${events}<h2 class="year-h">Forløb i fagene</h2>${plans}
+    <footer>Læs forløbet før det starter, så er du foran. Linkene til Meebook kræver login. Flere fag kommer på, når deres årsplaner er lagt ind.</footer>`;
+}
+
+let view = "schedule";
 function setView(v, scroll) {
-  view = v; write("lektier-view", v);
+  view = v;
   document.body.dataset.view = v;
   document.querySelectorAll(".tabbar button").forEach(b => b.setAttribute("aria-selected", b.dataset.view === v));
   window.scrollTo(0, 0);
@@ -411,6 +508,7 @@ window.addEventListener("online", sync);
 setInterval(() => { if (!document.hidden) sync(); }, 20000);
 
 render();
+renderYear();
 setView(view, true);
 if (remote) sync();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch(() => {});

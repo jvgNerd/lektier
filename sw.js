@@ -1,6 +1,6 @@
 // Network first, so a new plan shows up as soon as there is a connection; cache as offline fallback.
-const CACHE = "lektier-v3";
-const SHELL = ["./", "index.html", "plan.js", "config.js", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png"];
+const CACHE = "lektier-v4";
+const SHELL = ["./", "index.html", "plan.js", "aarsplan.js", "config.js", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));

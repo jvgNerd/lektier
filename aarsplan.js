@@ -1,0 +1,65 @@
+// Årsplaner for skoleåret 2026/2027, fra Meebook → Årsplaner.
+// start = mandag i den uge, forløbet begynder. Et forløb varer, til det næste begynder.
+// Tilføj et fag ved at sende fagets årsplan fra Meebook til Claude.
+
+window.AARSPLAN = {
+  // Fælles datoer for 9. årgang (står i årsplanerne).
+  events: [
+    { from: "2026-08-03", text: "Første skoledag" },
+    { from: "2026-09-02", text: "Forældremøde kl. 17–19" },
+    { from: "2026-10-12", to: "2026-10-18", text: "Efterårsferie" },
+    { from: "2026-11-02", to: "2026-11-06", text: "Projektopgave" },
+    { from: "2026-11-30", text: "Juleklip og samling" },
+    { from: "2026-12-21", to: "2027-01-03", text: "Juleferie" },
+    { from: "2027-01-25", to: "2027-01-27", text: "Terminsprøver", exam: true },
+    { from: "2027-02-01", to: "2027-02-05", text: "Praktik" },
+    { from: "2027-02-11", text: "Gallafest kl. 18–21" },
+    { from: "2027-02-15", to: "2027-02-21", text: "Vinterferie" },
+    { from: "2027-03-22", to: "2027-03-28", text: "Påskeferie" },
+    { from: "2027-04-05", text: "Udtræk til prøverne", exam: true },
+    { from: "2027-04-19", text: "Udtræk i dansk", exam: true },
+    { from: "2027-05-03", to: "2027-05-07", text: "Skriftlige prøver og Kristi himmelfartsferie", exam: true },
+    { from: "2027-05-17", text: "2. pinsedag (fri)" },
+    { from: "2027-05-21", text: "Sidste skoledag" },
+    { from: "2027-05-24", to: "2027-05-28", text: "Mundtlige prøver", exam: true },
+    { from: "2027-06-23", text: "Dimission" },
+  ],
+
+  subjects: [
+    {
+      name: "Matematik",
+      forloeb: [
+        { start: "2026-08-10", title: "Intro til 9. klasse: det I kan", id: "12489426" },
+        { start: "2026-08-10", title: "Ligninger 1", id: "12500763" },
+        { start: "2026-08-17", title: "Tivoli (torsdag)", id: "12489427" },
+        { start: "2026-08-24", title: "Trigonometri: trekanter", id: "12489428",
+          topics: "Sinus, cosinus og tangens. Beregn vinkler og længder, der ikke kan måles direkte." },
+        { start: "2026-09-14", title: "Funktioner i GeoGebra", id: "12489430",
+          topics: "Lineære, ligefrem og omvendt proportionale, eksponentielle og andengradsfunktioner." },
+        { start: "2026-10-05", title: "Penge i vækst", id: "12489431",
+          topics: "Positiv og negativ vækst. Lineær og eksponentiel vækst, algebraisk og grafisk." },
+        { start: "2026-10-05", title: "Opgaver i lineære funktioner", id: "12825571" },
+        { start: "2026-10-19", title: "Hundrededele og tusinddele", id: "12489432",
+          topics: "Procent og promille, fx hvordan man beregner promille og genstande." },
+        { start: "2026-11-09", title: "Ligninger", id: "12489433",
+          topics: "Ligningssystemer med to ubekendte og andengradsligninger, fx 2x² + 3x – 16 = 0. Også grafisk løsning." },
+        { start: "2026-11-30", title: "Uligheder", id: "12489440",
+          topics: "Som ligninger, men med ulighedstegn (<, >) i stedet for lighedstegn." },
+        { start: "2026-12-14", title: "Julematematik", id: "12489446" },
+        { start: "2027-01-04", title: "Gør prøverne nemmere: klar, parat, prøv", id: "12489447",
+          topics: "Forberedelse til terminsprøverne i uge 4." },
+        { start: "2027-02-08", title: "Fokus på det vi mangler", id: "12489448" },
+        { start: "2027-02-22", title: "Mundtlig matematik", id: "12489449" },
+        { start: "2027-03-08", title: "Sandsynlighedsregning: chancer og risiko", id: "12489450",
+          topics: "Kombinatorisk, statistisk og subjektiv sandsynlighed. Frekvenstabeller." },
+        { start: "2027-03-29", title: "Rumfang og overflade", id: "12489451",
+          topics: "Rumfang, overfladeareal og rumdiagonaler for kasse, cylinder, prisme, pyramide, kegle og kugle." },
+        { start: "2027-04-12", title: "Vækst (repetition)", id: "12489453",
+          topics: "Lineær og eksponentiel vækst, positiv og negativ." },
+        { start: "2027-04-19", title: "Få styr på det sidste", id: "12489454",
+          topics: "Repetition af det, du selv har brug for." },
+        { start: "2027-05-10", title: "Forberedelse til mundtlige prøver", id: "12489455" },
+      ],
+    },
+  ],
+};
