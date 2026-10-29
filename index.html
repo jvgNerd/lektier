@@ -122,8 +122,11 @@ body { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 64px); }
 .day h3 .date { font: 400 14px var(--body); color: var(--muted); font-variant-numeric: tabular-nums; }
 .pill { font: 700 11px/1 var(--body); letter-spacing: .06em; text-transform: uppercase; background: var(--accent); color: var(--paper); padding: 4px 7px; border-radius: 999px; }
 .lessons { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
-.lesson { display: grid; grid-template-columns: 34px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; background: var(--bg); }
-.lesson .slot { font: 700 13px/1 var(--body); color: var(--muted); font-variant-numeric: tabular-nums; text-align: center; }
+.lesson { display: grid; grid-template-columns: 46px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; background: var(--bg); }
+.lesson .slot { font: 700 14px/1.2 var(--body); font-variant-numeric: tabular-nums; display: flex; flex-direction: column; }
+.lesson .slot small { font-weight: 400; font-size: 12px; color: var(--muted); }
+.gap { font-size: 12px; color: var(--muted); padding: 0 10px 0 66px; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+.day h3 .span { margin-left: auto; font: 400 13px var(--body); color: var(--muted); font-variant-numeric: tabular-nums; }
 .lesson .name { font-weight: 700; }
 .lesson .meta { font-size: 13px; color: var(--muted); }
 .lesson .open { font: 700 12px/1 var(--body); background: var(--hl); color: #1d2433; padding: 5px 8px; border-radius: 999px; white-space: nowrap; }
@@ -146,7 +149,7 @@ body[data-view="tasks"] .s-only, body[data-view="schedule"] .t-only { display: n
 <main>
   <p class="note s-only" id="snote" hidden></p>
   <div class="s-only" id="days" style="display:flex;flex-direction:column;gap:12px"></div>
-  <footer class="s-only">Skemaet er taget fra Aula uden klokkeslæt, så timerne er nummereret i rækkefølge. Den gule markering viser lektier, der mangler i faget i denne uge.</footer>
+  <footer class="s-only">Tiderne er aflæst fra Aula-kalenderen og kan afvige et par minutter. Den gule markering viser lektier, der mangler i faget i denne uge.</footer>
 
   <section class="progress t-only" aria-live="polite">
     <div class="progress-row">
@@ -265,19 +268,35 @@ function renderSchedule(w) {
     const date = new Date(y, m - 1, d + i);
     const iso = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     const isToday = iso === todayIso();
-    let slot = 1;
-    const rows = (sched[key] || []).map(l => {
-      const n = l.n || 1;
-      const slotTxt = l.time ? "" : (n > 1 ? `${slot}–${slot + n - 1}` : `${slot}`);
-      slot += n;
-      const meta = [l.time, l.room, l.teacher].filter(Boolean).map(esc).join(" · ");
+    const bells = window.PLAN.bells || [];
+    // Split a run of lessons wherever a break falls inside it, so pauses and lunch show.
+    const lessons = (sched[key] || []).flatMap(l => {
+      if (!l.start) return [l];
+      const parts = [];
+      for (let i = l.start - 1; i < l.start - 1 + (l.n || 1); i++) {
+        const last = parts[parts.length - 1];
+        if (last && last.to === bells[i][0]) last.to = bells[i][1];
+        else parts.push({ ...l, from: bells[i][0], to: bells[i][1] });
+      }
+      return parts;
+    });
+    const mins = t => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+    let prevEnd = null;
+    const rows = lessons.map(l => {
+      let gap = "";
+      if (prevEnd && mins(l.from) > mins(prevEnd)) {
+        gap = `<li class="gap">${mins(l.from) - mins(prevEnd) >= 30 ? "Frokost" : "Pause"} ${prevEnd}–${l.from}</li>`;
+      }
+      prevEnd = l.to;
+      const meta = [l.room, l.teacher].filter(Boolean).map(esc).join(" · ");
       const o = open[l.subject];
       const chip = o && o.all ? (o.left ? `<span class="open">${o.left} mangler</span>` : `<span class="open ok">Klar ✓</span>`) : "";
-      return `<li class="lesson"><span class="slot">${slotTxt}</span>
+      return `${gap}<li class="lesson"><span class="slot">${l.from}<small>${l.to}</small></span>
         <span><span class="name">${esc(l.subject)}</span>${meta ? `<br><span class="meta">${meta}</span>` : ""}</span>${chip}</li>`;
     }).join("");
+    const span = lessons.length ? `${lessons[0].from}–${lessons[lessons.length - 1].to}` : "";
     return `<article class="day${isToday ? " today" : ""}" id="day-${key}">
-      <h3>${label} <span class="date">${date.getDate()}/${date.getMonth() + 1}</span>${isToday ? `<span class="pill">I dag</span>` : ""}</h3>
+      <h3>${label} <span class="date">${date.getDate()}/${date.getMonth() + 1}</span>${isToday ? `<span class="pill">I dag</span>` : ""}<span class="span">${span}</span></h3>
       <ul class="lessons">${rows}</ul></article>`;
   }).join("");
 }

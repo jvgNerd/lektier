@@ -3,27 +3,31 @@
 // ellers forsvinder fluebenet for den opgave.
 // kind: "lektie" (hjemme), "forbered" (vær klar til timen), "medbring" (husk i tasken)
 
-// Skema: timerne står i rækkefølge for hver dag. n = antal lektioner i træk.
+// Skema: L(fag, første lektion, antal lektioner i træk, lærer, lokale).
 // Lokale 209 er klassens eget og vises ikke.
 const SUBJ = { MAT: "Matematik", ENG: "Engelsk", BIO: "Biologi", GEO: "Geografi", FK: "Fysik/kemi", SAM: "Samfundsfag",
   DAN: "Dansk", KRI: "Kristendomskundskab", FRA: "Fransk", HIS: "Historie", IDR: "Idræt", KM: "Klassens time" };
-const L = (s, n, teacher, room) => ({ subject: SUBJ[s], n, teacher, room: room || "" });
+const L = (s, start, n, teacher, room) => ({ subject: SUBJ[s], start, n, teacher, room: room || "" });
 
 window.PLAN = {
+  // Lektionstider aflæst fra Aula-kalenderen (afrundet til 5 min).
+  bells: [["08:00", "08:45"], ["08:45", "09:30"], ["09:50", "10:35"], ["10:35", "11:20"],
+          ["12:00", "12:45"], ["12:45", "13:30"], ["13:45", "14:30"], ["14:30", "15:15"]],
+
   schedules: {
     normal: {
-      man: [L("MAT", 2, "JRJ, KM"), L("ENG", 2, "AF"), L("BIO", 1, "MP", "313 Biologi"), L("BIO", 1, "MP"), L("GEO", 1, "MP"), L("FK", 1, "MP")],
-      tir: [L("MAT", 2, "JRJ, KM"), L("SAM", 2, "LMA"), L("DAN", 3, "MSJ, SCO")],
-      ons: [L("KRI", 1, "AF"), L("FRA", 1, "AF"), L("HIS", 2, "LMA"), L("ENG", 1, "AF")],
-      tor: [L("FRA", 2, "AF"), L("DAN", 2, "MSJ, SCO"), L("MAT", 1, "JRJ, KM"), L("IDR", 2, "", "Hal 3, med 9C")],
-      fre: [L("IDR", 2, "MD", "Hal 2, hele 9. årgang"), L("DAN", 2, "MSJ, SCO"), L("KM", 1, "SCO"), L("FK", 2, "MP", "308 Fysik/kemi")],
+      man: [L("MAT", 1, 2, "JRJ, KM"), L("ENG", 3, 2, "AF"), L("BIO", 5, 1, "MP", "313 Biologi"), L("BIO", 6, 1, "MP"), L("GEO", 7, 1, "MP"), L("FK", 8, 1, "MP")],
+      tir: [L("MAT", 1, 2, "JRJ, KM"), L("SAM", 3, 2, "LMA"), L("DAN", 5, 3, "MSJ, SCO")],
+      ons: [L("KRI", 1, 1, "AF"), L("FRA", 2, 1, "AF"), L("HIS", 3, 2, "LMA"), L("ENG", 5, 1, "AF")],
+      tor: [L("FRA", 2, 2, "AF"), L("DAN", 4, 2, "MSJ, SCO"), L("MAT", 6, 1, "JRJ, KM"), L("IDR", 7, 2, "", "Hal 3, med 9C")],
+      fre: [L("IDR", 1, 2, "MD", "Hal 2, hele 9. årgang"), L("DAN", 3, 2, "MSJ, SCO"), L("KM", 5, 1, "SCO"), L("FK", 6, 2, "MP", "308 Fysik/kemi")],
     },
     projektuge: {
-      man: [{ subject: "Projekt: problemstilling og gruppekontrakt", time: "08:45–13:30" }],
-      tir: [{ subject: "Projekt: research og produkt", time: "08:45–13:30" }],
-      ons: [{ subject: "Projekt: research og produkt", time: "08:45–13:30" }],
-      tor: [{ subject: "Projekt: aflevering af produkt og synopsis", time: "08:45–13:30" }],
-      fre: [{ subject: "Projekt: fremlæggelser", time: "Se fremlæggelsesplanen" }],
+      man: [{ subject: "Projekt: problemstilling og gruppekontrakt", from: "08:45", to: "13:30" }],
+      tir: [{ subject: "Projekt: research og produkt", from: "08:45", to: "13:30" }],
+      ons: [{ subject: "Projekt: research og produkt", from: "08:45", to: "13:30" }],
+      tor: [{ subject: "Projekt: aflevering af produkt og synopsis", from: "08:45", to: "13:30" }],
+      fre: [{ subject: "Projekt: fremlæggelser", from: "08:45", to: "13:30", room: "Tid ifølge fremlæggelsesplanen" }],
     },
   },
 
